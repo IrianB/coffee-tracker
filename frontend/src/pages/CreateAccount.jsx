@@ -1,40 +1,42 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import API from '../api/axios.js'
 
-const Home = () => {
-
+const CreateAccount = () => {
     const navigate = useNavigate()
-
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const onSubmitHandler = async (e) => {
+    const handleCreateAccount = async (e) => {
         e.preventDefault()
         try {
-            await API.post('/users/login', { email, password })
-            alert("Login successful")
-            navigate('/layout')
+            await API.post('/users/register', { email, password })
+            alert("Account successfully created")
+            navigate('/')
         } catch (error) {
-            console.log(error)
+            if (error.response) {
+                console.log('Error data:', error.response.data);
+                console.log('Error status:', error.response.status);
+                alert(error.response.data.message || 'Registration failed');
+            } else {
+                console.log('Error:', error.message);
+                alert('An unexpected error occurred');
+            }
         }
-    }
-
-    const createAccount = () => {
-        navigate('/create-account')
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-200">
-            <form onSubmit={onSubmitHandler} className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm">
+            <form
+                onSubmit={handleCreateAccount}
+                className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm"
+            >
                 <h1 className="text-3xl font-bold text-center text-amber-700 mb-6">
-                    Welcome
+                    Create Account
                 </h1>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Email
-                    </label>
+                    <label className="block text-gray-700 font-semibold mb-2">Email</label>
                     <input
                         onChange={(e) => setEmail(e.target.value)}
                         type="email"
@@ -45,9 +47,7 @@ const Home = () => {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Password
-                    </label>
+                    <label className="block text-gray-700 font-semibold mb-2">Password</label>
                     <input
                         onChange={(e) => setPassword(e.target.value)}
                         type="password"
@@ -61,19 +61,11 @@ const Home = () => {
                     type="submit"
                     className="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition duration-300"
                 >
-                    Login
-                </button>
-
-                <button
-                    type="button"
-                    onClick={createAccount}
-                    className="w-full mt-4 bg-white border border-amber-600 text-amber-600 py-3 rounded-lg font-semibold hover:bg-amber-50 transition duration-300"
-                >
                     Create Account
                 </button>
             </form>
         </div>
-    );
-};
+    )
+}
 
-export default Home;
+export default CreateAccount
