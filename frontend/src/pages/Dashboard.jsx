@@ -34,7 +34,7 @@ const Dashboard = () => {
                         <tr key={coffee._id} className="border-b hover:bg-amber-50 transition-colors">
                             <td className="py-3 px-6">{coffee.coffeeName}</td>
                             <td className="py-3 px-6">{coffee.size}</td>
-                            <td className="py-3 px-6">${coffee.price}</td>
+                            <td className="py-3 px-6">₱ {coffee.price.toFixed(2)}</td>
                             <td className="py-3 px-6">{coffee.coffeeShopName}</td>
                         </tr>
                     ))}
