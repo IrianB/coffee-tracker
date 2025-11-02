@@ -1,41 +1,58 @@
-import React, { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import API from '../api/axios.js'
-  import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import API from "../api/axios.js";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
+    const navigate = useNavigate();
 
-    const navigate = useNavigate()
-
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
     const onSubmitHandler = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
         try {
-            await API.post('/users/login', { email, password })
-            toast.success("Login successful!")
-            navigate('/layout')
+            // 🔹 Send login request
+            const response = await API.post("/users/login", { email, password });
+
+            // 🔹 Destructure response data
+            const { token, user } = response.data;
+
+            // ✅ Save token and user ID to localStorage
+            localStorage.setItem("token", token);
+            localStorage.setItem("userId", user._id || user.id); // handle either key
+
+            // ✅ Show success toast
+            toast.success("Login successful! Redirecting...");
+
+            // ⏳ Wait 3 seconds before redirecting
+            setTimeout(() => {
+                navigate("/layout");
+            }, 3000);
+
         } catch (error) {
             if (error.response) {
-                toast.error(error.response.data.message || 'Login failed')
-                console.log('Error status:', error.response.status);
-                console.log('Error data:', error.response.data);
+                toast.error(error.response.data.message || "Login failed");
+                console.log("Error status:", error.response.status);
+                console.log("Error data:", error.response.data);
             } else {
-                toast.error('An unexpected error occurred');
-                console.log('Error:', error.message);
+                toast.error("An unexpected error occurred");
+                console.log("Error:", error.message);
             }
         }
-    }
+    };
 
     const createAccount = () => {
-        navigate('/create-account')
-    }
+        navigate("/create-account");
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-200">
-            <form onSubmit={onSubmitHandler} className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm">
+            <form
+                onSubmit={onSubmitHandler}
+                className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm"
+            >
                 <h1 className="text-3xl font-bold text-center text-amber-700 mb-6">
                     Welcome
                 </h1>
@@ -78,21 +95,9 @@ const Home = () => {
                 </button>
             </form>
 
-            {/* Toast container for notifications */}
-            <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+            <ToastContainer position="top-right" autoClose={3000} />
         </div>
-    )
-
-}
+    );
+};
 
 export default Home;
