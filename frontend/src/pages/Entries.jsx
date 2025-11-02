@@ -21,7 +21,11 @@ const Entries = () => {
                 coffeeShopName,
                 coffeeName,
                 size,
-                price,
+                price: Number(price),
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
             })
 
             toast.success('Coffee added successfully!')

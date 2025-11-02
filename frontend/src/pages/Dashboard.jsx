@@ -7,7 +7,9 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchCoffee = async () => {
             try {
-                const response = await API.get('/coffee/get-coffee')
+                const response = await API.get('/coffee/get-coffee',{
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
+                })
                 setCoffees(response.data)
             } catch (error) {
                 console.log(error)
