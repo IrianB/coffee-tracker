@@ -1,26 +1,26 @@
 import Coffee from '../models/CoffeeModel.js'
 
 export const addCoffee = async (req, res) => {
-    try {
-        const { coffeeName, coffeeShopName, price, size } = req.body
-        if (!coffeeName || !coffeeShopName || !price || !size) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-        const newCoffee = new Coffee({ coffeeName, coffeeShopName, price, size })
-        await newCoffee.save()
-        res.status(200).json({ message: 'Coffee added successfully' })
-    } catch (error) {
-        res.status(400).json({ message: error.message })
+  try {
+    const { coffeeName, coffeeShopName, price, size } = req.body
+    if (!coffeeName || !coffeeShopName || !price || !size) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+    const newCoffee = new Coffee({ coffeeName, coffeeShopName, price, size })
+    await newCoffee.save()
+    res.status(200).json({ message: 'Coffee added successfully' })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
 }
 
 export const getAllCoffee = async (req, res) => {
-    try {
-        const coffee = await Coffee.find({}).sort({createdAt: -1})
-        res.status(200).json(coffee)
-    } catch (error) {
-        res.status(400).json({ message: error.message })
-    }
+  try {
+    const coffee = await Coffee.find({}).sort({ createdAt: -1 })
+    res.status(200).json(coffee)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
 }
 
 export const getAnalytics = async (req, res) => {
@@ -82,4 +82,21 @@ export const getAnalytics = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Failed to fetch analytics" });
   }
-};
+}
+
+export const deleteCoffee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const coffee = await Coffee.findById(id)
+
+    if (!coffee) {
+      return res.status(404).json({ message: 'Coffee not found' })
+    }
+
+    await Coffee.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Coffee deleted successfully' })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' })
+  }
+}

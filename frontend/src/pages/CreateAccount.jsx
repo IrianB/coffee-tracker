@@ -28,7 +28,7 @@ const CreateAccount = () => {
         try {
             await API.post('/users/register', formData)
 
-            // ✅ Show success toast
+            //  Show success toast
             toast.success('Account successfully created! Redirecting to login...', {
                 position: 'top-right',
                 autoClose: 2000,
@@ -167,7 +167,7 @@ const CreateAccount = () => {
                 </p>
             </form>
 
-            {/* ✅ Toast container */}
+            {/* Toast container */}
             <ToastContainer position="top-right" autoClose={3000} />
         </div>
     )
