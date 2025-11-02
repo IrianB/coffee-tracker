@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import API from '../api/axios.js'
+  import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Home = () => {
 
@@ -13,10 +15,17 @@ const Home = () => {
         e.preventDefault()
         try {
             await API.post('/users/login', { email, password })
-            alert("Login successful")
+            toast.success("Login successful!")
             navigate('/layout')
         } catch (error) {
-            console.log(error)
+            if (error.response) {
+                toast.error(error.response.data.message || 'Login failed')
+                console.log('Error status:', error.response.status);
+                console.log('Error data:', error.response.data);
+            } else {
+                toast.error('An unexpected error occurred');
+                console.log('Error:', error.message);
+            }
         }
     }
 
@@ -32,9 +41,7 @@ const Home = () => {
                 </h1>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Email
-                    </label>
+                    <label className="block text-gray-700 font-semibold mb-2">Email</label>
                     <input
                         onChange={(e) => setEmail(e.target.value)}
                         type="email"
@@ -45,9 +52,7 @@ const Home = () => {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Password
-                    </label>
+                    <label className="block text-gray-700 font-semibold mb-2">Password</label>
                     <input
                         onChange={(e) => setPassword(e.target.value)}
                         type="password"
@@ -72,8 +77,22 @@ const Home = () => {
                     Create Account
                 </button>
             </form>
+
+            {/* Toast container for notifications */}
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </div>
-    );
-};
+    )
+
+}
 
 export default Home;
