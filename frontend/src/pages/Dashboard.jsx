@@ -23,7 +23,7 @@ const Dashboard = () => {
             <table className="min-w-full">
                 <thead className="bg-amber-600 text-white">
                     <tr>
-                        <th className="py-3 px-6 text-left">Name</th>
+                        <th className="py-3 px-6 text-left">Coffee Name</th>
                         <th className="py-3 px-6 text-left">Size</th>
                         <th className="py-3 px-6 text-left">Price</th>
                         <th className="py-3 px-6 text-left">Coffee Shop</th>
