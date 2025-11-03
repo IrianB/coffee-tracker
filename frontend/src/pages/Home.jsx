@@ -13,23 +13,23 @@ const Home = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault();
         try {
-            // 🔹 Send login request
+            //  Send login request
             const response = await API.post("/users/login", { email, password });
 
-            // 🔹 Destructure response data
+            //  Destructure response data
             const { token, user } = response.data;
 
-            // ✅ Save token and user ID to localStorage
+            //  Save token and user ID to localStorage
             localStorage.setItem("token", token);
             localStorage.setItem("userId", user._id || user.id); // handle either key
 
-            // ✅ Show success toast
+            //  Show success toast
             toast.success("Login successful! Redirecting...");
 
-            // ⏳ Wait 3 seconds before redirecting
+            //  Wait 1 second before redirecting
             setTimeout(() => {
                 navigate("/layout");
-            }, 3000);
+            }, 1000);
 
         } catch (error) {
             if (error.response) {

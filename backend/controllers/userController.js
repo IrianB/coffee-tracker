@@ -112,3 +112,24 @@ export const getUserById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, age, gender, birthdate } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name, email, age, gender, birthdate },
+      { new: true, runValidators: true } // return the updated document & validate
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
