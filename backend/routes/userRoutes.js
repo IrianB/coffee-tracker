@@ -1,5 +1,4 @@
 import { addUser, getUserById, loginUser, updateUser } from "../controllers/userController.js";
-import User from "../models/User.js";
 import express from 'express'
 
 const router = express.Router()

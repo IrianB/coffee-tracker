@@ -1,122 +1,105 @@
-import React, { useState } from 'react'
-import API from '../api/axios.js'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import React, { useEffect, useState } from "react";
+import API from "../api/axios.js";
+import EditEntryModal from "./EditEntryModal.jsx";
 
 const Entries = () => {
-    const [coffeeShopName, setCoffeeShopName] = useState('')
-    const [coffeeName, setCoffeeName] = useState('')
-    const [size, setSize] = useState('')
-    const [price, setPrice] = useState('')
+  const [entries, setEntries] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-    const coffeeSubmit = async (e) => {
-        e.preventDefault()
-        try {
-            if (!coffeeShopName || !coffeeName || !size || !price) {
-                toast.error('All fields are required!')
-                return
-            }
-
-            await API.post('/coffee/add-coffee', {
-                coffeeShopName,
-                coffeeName,
-                size,
-                price: Number(price),
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            })
-
-            toast.success('Coffee added successfully!')
-            setCoffeeShopName('')
-            setCoffeeName('')
-            setSize('')
-            setPrice('')
-        } catch (error) {
-            console.log(error)
-            toast.error('Failed to add coffee')
-        }
+  const fetchEntries = async () => {
+    try {
+      const response = await API.get("/entry/entries");
+      setEntries(response.data);
+    } catch (error) {
+      console.error("Error fetching entries:", error);
     }
+  };
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-200">
-            <form
-                onSubmit={coffeeSubmit}
-                className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md"
-            >
-                <h1 className="text-3xl font-bold text-center text-amber-700 mb-6">
-                    Add Coffee Entry
-                </h1>
+  useEffect(() => {
+    fetchEntries();
+  }, [isOpen]);
 
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Coffee Shop Name
-                    </label>
-                    <input
-                        value={coffeeShopName}
-                        onChange={(e) => setCoffeeShopName(e.target.value)}
-                        type="text"
-                        required
-                        placeholder="Enter coffee shop name"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                    />
-                </div>
+  const deleteEntryCoffee = async (entry) => {
+    try {
+      await API.delete(`/entry/delete-entry/${entry._id}`);
+      console.log("Entry deleted successfully");
+      setEntries(entries.filter((coffee) => coffee._id !== entry._id));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Coffee Name
-                    </label>
-                    <input
-                        value={coffeeName}
-                        onChange={(e) => setCoffeeName(e.target.value)}
-                        type="text"
-                        required
-                        placeholder="Enter coffee name"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                    />
-                </div>
+  return (
+    <div className="p-6">
+      <EditEntryModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">Size</label>
-                    <select
-                        value={size}
-                        onChange={(e) => setSize(e.target.value)}
-                        required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
-                    >
-                        <option value="" disabled>
-                            Select size
-                        </option>
-                        <option value="Small">Small</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Large">Large</option>
-                    </select>
-                </div>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          ☕ Today's Coffee Entries
+        </h1>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="px-5 py-2 bg-amber-600 text-white font-medium rounded-lg shadow-md hover:bg-amber-700 active:scale-95 transition duration-200 ease-in-out"
+        >
+          + Add Entry
+        </button>
+      </div>
 
-                <div className="mb-6">
-                    <label className="block text-gray-700 font-semibold mb-2">Price</label>
-                    <input
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        type="number"
-                        required
-                        placeholder="Enter price"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                    />
-                </div>
+      {/* Scrollable table container */}
+      <div className="border border-gray-200 rounded-xl overflow-y-auto max-h-[55vh] hide-scrollbar shadow-md bg-white">
+        <table className="min-w-full text-sm text-gray-700">
+          <thead className="bg-amber-600 text-white uppercase text-xs sticky top-0">
+            <tr>
+              <th className="py-3 px-4 text-left font-semibold">Coffee Name</th>
+              <th className="py-3 px-4 text-left font-semibold">Price</th>
+              <th className="py-3 px-4 text-left font-semibold">Date</th>
+              <th className="py-3 px-4 text-center font-semibold">Actions</th>
+            </tr>
+          </thead>
 
-                <button
-                    type="submit"
-                    className="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition duration-300"
+          <tbody>
+            {entries.length > 0 ? (
+              entries.map((entry, index) => (
+                <tr
+                  key={entry._id}
+                  className={`${index % 2 === 0 ? "bg-white" : "bg-amber-50"
+                    } hover:bg-amber-100 transition duration-150`}
                 >
-                    Add Coffee
-                </button>
-            </form>
+                  <td className="py-3 px-4 border-b border-gray-200">
+                    {entry.coffeeId?.coffeeName || "Unknown"}
+                  </td>
+                  <td className="py-3 px-4 border-b border-gray-200">
+                    ₱ {entry.coffeeId?.price?.toFixed(2) || "0.00"}
+                  </td>
+                  <td className="py-3 px-4 border-b border-gray-200">
+                    {new Date(entry.createdAt).toLocaleString()}
+                  </td>
+                  <td className="py-3 px-4 border-b border-gray-200 text-center">
+                    <button
+                      onClick={() => deleteEntryCoffee(entry)}
+                      className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 active:scale-95 transition duration-200"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="text-center py-6 text-gray-500 italic"
+                >
+                  No coffee entries yet ☕
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
-            <ToastContainer position="top-right" autoClose={3000} />
-        </div>
-    )
-}
-
-export default Entries
+export default Entries;
+  

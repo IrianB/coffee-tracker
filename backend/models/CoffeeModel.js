@@ -31,6 +31,6 @@ const coffeeSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const Coffee = mongoose.model("Coffee", coffeeSchema);
+const Coffee = mongoose.model("Coffee", coffeeSchema)
 
 export default Coffee;
