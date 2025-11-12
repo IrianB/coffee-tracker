@@ -5,34 +5,31 @@ const EditEntryModal = ({ isOpen, onClose }) => {
     const [coffees, setCoffees] = useState([]);
     const [selectedCoffee, setSelectedCoffee] = useState("");
 
-    useEffect(() => {
-        if (!isOpen) return;
+    if (!isOpen) return null;
 
-        const fetchCoffees = async () => {
-            try {
-                const response = await API.get("/coffee/get-coffee");
-                setCoffees(response.data);
-            } catch (error) {
-                console.error("Error fetching coffees:", error);
-            }
-        };
-
-        fetchCoffees();
-    }, [isOpen]);
+    const fetchCoffees = async () => {
+        try {
+            const response = await API.get("/coffee/get-coffee");
+            setCoffees(response.data);
+        } catch (error) {
+            console.error("Error fetching coffees:", error);
+        }
+    };
 
     const submitEntry = async (e) => {
         e.preventDefault();
         try {
             const res = await API.post("/entry/create-entry", { coffeeId: selectedCoffee });
             setSelectedCoffee("");
-            console.log("Entry created:", res.data);
             onClose();
         } catch (error) {
             console.error("Error creating entry:", error);
         }
     };
 
-    if (!isOpen) return null;
+    useEffect(() => {
+        fetchCoffees();
+    }, [isOpen]);
 
     return (
         <div className="fixed inset-0 bg-transparent bg-opacity-40 flex items-center justify-center">
@@ -53,8 +50,12 @@ const EditEntryModal = ({ isOpen, onClose }) => {
                         >
                             <option value="">-- Choose a coffee --</option>
                             {coffees.map((coffee) => (
-                                <option key={coffee._id} value={coffee._id}>
-                                    {coffee.coffeeName}
+                                <option
+                                    key={coffee._id}
+                                    value={coffee._id}
+                                    className="text-gray-700 bg-white hover:bg-amber-50 py-2"
+                                >
+                                    {coffee.coffeeName} ---------- ₱ {Number(coffee.price).toFixed(2)}
                                 </option>
                             ))}
                         </select>

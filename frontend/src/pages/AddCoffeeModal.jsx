@@ -17,12 +17,17 @@ const AddCoffeeModal = ({ isOpen, onClose, onCoffeeAdded }) => {
                 return;
             }
 
+            if(Number(price) <= 0 ) {
+                toast.error("price should be greater than 0")
+                return
+            }
+
             const response = await API.get('/coffee/get-coffee')
 
             const existingCoffee = response.data.some(item =>
                 item.coffeeName.trim().toLowerCase() === coffeeName.trim().toLowerCase() &&
-                item.coffeeShopName.trim().toLowerCase() === coffeeShopName.trim().toLowerCase() &&
                 item.size === size &&
+                item.coffeeShopName === coffeeShopName &&
                 item.price === Number(price)
             )
 
@@ -49,7 +54,6 @@ const AddCoffeeModal = ({ isOpen, onClose, onCoffeeAdded }) => {
             setSize("");
             setPrice("");
         } catch (error) {
-            console.log(error);
             toast.error("Failed to add coffee");
         }
     };
@@ -70,18 +74,22 @@ const AddCoffeeModal = ({ isOpen, onClose, onCoffeeAdded }) => {
                 </button>
 
                 <h1 className="text-3xl font-bold text-center text-amber-700 mb-6">
-                    Add Coffee Entry
+                    Add Coffee Menu
                 </h1>
 
                 <form onSubmit={coffeeSubmit} className="space-y-4">
-                    <input
+                    <select
                         value={coffeeShopName}
                         onChange={(e) => setCoffeeShopName(e.target.value)}
-                        type="text"
-                        placeholder="Coffee Shop Name"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
                         required
-                    />
+                    >
+                        <option value="" disabled>
+                            Select Coffee Shop
+                        </option>
+                        <option value="Starbucks">Starbucks</option>
+                        <option value="Boss Coffee">Boss Coffee</option>
+                    </select>
                     <input
                         value={coffeeName}
                         onChange={(e) => setCoffeeName(e.target.value)}

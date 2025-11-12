@@ -59,19 +59,19 @@ export const deleteEntryCoffee = async (req, res) => {
     }
 };
 
-
 export const getAnalytics = async (req, res) => {
     const userId = req.user.id;
 
     try {
         const { startDate, endDate } = req.query;
-        console.log(req.query);
 
-        const start = startDate ? new Date(startDate) : new Date();
-        start.setHours(0, 0, 0, 0);
-
-        const end = endDate ? new Date(endDate) : new Date();
-        end.setHours(23, 59, 59, 999);
+        const today = new Date();
+        const start = startDate
+            ? new Date(`${startDate}T00:00:00`)
+            : new Date(today);
+        const end = endDate
+            ? new Date(`${endDate}T23:59:59`)
+            : new Date(today);
 
         const entries = await Entry.find({
             userId,
@@ -79,24 +79,45 @@ export const getAnalytics = async (req, res) => {
         }).populate({ path: "coffeeId", select: "-createdAt -updatedAt" });
 
         const totalCoffees = entries.length;
-        const totalPrice = entries.reduce((sum, entry) => sum + entry.coffeeId.price, 0);
+        const totalPrice = entries.reduce(
+            (sum, entry) => sum + (entry.coffeeId?.price || 0),
+            0
+        );
+
+        const coffeeCount = {};
+        entries.forEach((entry) => {
+            const name = entry.coffeeId?.coffeeName;
+            if (name) {
+                coffeeCount[name] = (coffeeCount[name] || 0) + 1;
+            }
+        });
+
+        let mostCoffeeUsed = null;
+        if (Object.keys(coffeeCount).length > 0) {
+            const maxCount = Math.max(...Object.values(coffeeCount));
+            const mostUsed = Object.keys(coffeeCount).find(
+                (name) => coffeeCount[name] === maxCount
+            );
+            mostCoffeeUsed = { name: mostUsed, count: maxCount };
+        }
 
         const dailyMap = {};
         entries.forEach((entry) => {
             const date = entry.createdAt.toISOString().split("T")[0];
             if (!dailyMap[date]) dailyMap[date] = 0;
-            dailyMap[date] += entry.coffeeId.price;
+            dailyMap[date] += entry.coffeeId?.price || 0;
         });
 
         const daily = Object.keys(dailyMap)
             .sort()
             .map((date) => ({ date, totalSpent: dailyMap[date] }));
 
-        res.status(200).json({ totalPrice, totalCoffees, daily });
+        res.status(200).json({ totalPrice, totalCoffees, daily, mostCoffeeUsed });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
+
 
 
 

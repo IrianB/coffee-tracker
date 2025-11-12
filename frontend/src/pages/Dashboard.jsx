@@ -8,21 +8,16 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCoffee, setSelectedCoffee] = useState();
+  const [sorter, setSorter] = useState('default')
 
   const fetchCoffee = async () => {
     try {
-      const response = await API.get("/coffee/get-coffee", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const response = await API.get("/coffee/get-coffee");
       setCoffees(response.data);
     } catch (error) {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    fetchCoffee();
-  }, []);
 
   const deleteCoffee = async (id) => {
     try {
@@ -32,6 +27,16 @@ const Dashboard = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (sorter === "lowToHigh") {
+      setCoffees((prev) => [...prev].sort((a, b) => a.price - b.price));
+    } else if (sorter === "highToLow") {
+      setCoffees((prev) => [...prev].sort((a, b) => b.price - a.price));
+    } else if (sorter === "default") {
+      fetchCoffee()
+    }
+  }, [sorter, isModalOpen, isEditModalOpen]);
 
   return (
     <div className="p-6">
@@ -45,7 +50,7 @@ const Dashboard = () => {
         coffee={selectedCoffee}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onCoffeeAdded={() => fetchCoffee()}
+        onCoffeeAdded={() => sorter}
       />
 
       {/* Header */}
@@ -53,6 +58,19 @@ const Dashboard = () => {
         <h1 className="text-2xl font-semibold text-gray-800">
           ☕ Coffee Dashboard
         </h1>
+
+        <select
+          name="sorter"
+          id="sorter"
+          value={sorter}
+          onChange={(e) => setSorter(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-amber-400 transition duration-200 ease-in-out cursor-pointer"
+        >
+          <option value="default">🌀 Default Order</option>
+          <option value="lowToHigh">💰 Price — Low to High</option>
+          <option value="highToLow">💸 Price — High to Low</option>
+        </select>
+
         <button
           onClick={() => setIsModalOpen(true)}
           className="px-5 py-2 bg-amber-600 text-white font-medium rounded-lg shadow-md hover:bg-amber-700 active:scale-95 transition duration-200 ease-in-out"

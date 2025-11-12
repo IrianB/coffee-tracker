@@ -15,10 +15,6 @@ const Entries = () => {
     }
   };
 
-  useEffect(() => {
-    fetchEntries();
-  }, [isOpen]);
-
   const deleteEntryCoffee = async (entry) => {
     try {
       await API.delete(`/entry/delete-entry/${entry._id}`);
@@ -28,6 +24,10 @@ const Entries = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    fetchEntries();
+  }, [isOpen]);
 
   return (
     <div className="p-6">
@@ -102,4 +102,3 @@ const Entries = () => {
 };
 
 export default Entries;
-  

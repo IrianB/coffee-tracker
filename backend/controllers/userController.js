@@ -121,7 +121,6 @@ export const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { name, email, age, gender, birthdate },
-      { new: true, runValidators: true } // return the updated document & validate
     );
 
     if (!updatedUser) {

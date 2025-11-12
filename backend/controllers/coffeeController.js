@@ -1,10 +1,14 @@
 import Coffee from '../models/CoffeeModel.js'
+import Entry from '../models/EntriesModel.js';
 
 export const addCoffee = async (req, res) => {
   try {
     const { coffeeName, coffeeShopName, price, size } = req.body
     if (!coffeeName || !coffeeShopName || !price || !size) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+    if (price <= 0) {
+      return res.status(400).json({ message: "price should atleast be more than 0" })
     }
 
     const normalize = (str) => str.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -27,8 +31,10 @@ export const addCoffee = async (req, res) => {
 }
 
 export const getAllCoffee = async (req, res) => {
+
   try {
     const coffee = await Coffee.find({ user: req.user.id }).sort({ createdAt: -1 })
+
     res.status(200).json(coffee)
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -44,6 +50,7 @@ export const deleteCoffee = async (req, res) => {
       return res.status(404).json({ message: 'Coffee not found' })
     }
 
+    await Entry.deleteMany({ coffeeId: id })
     await Coffee.findByIdAndDelete(id);
     res.status(200).json({ message: 'Coffee deleted successfully' })
   } catch (error) {

@@ -35,14 +35,8 @@ const editCoffeeModal = ({ coffee, isOpen, onClose, onCoffeeAdded }) => {
                     size,
                     price: Number(price),
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                }
             );
-            console.log(res.data)
-            onCoffeeAdded(res.data); // update dashboard
+            onCoffeeAdded(); 
 
             onClose();
 

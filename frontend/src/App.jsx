@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route } from "react-router-dom";
 import Home from './pages/Home';
+import { Navigate } from 'react-router-dom';
 import Layout from './pages/Layout';
 import CreateAccount from './pages/CreateAccount';
 import Dashboard from './pages/Dashboard';
@@ -15,17 +16,18 @@ const App = () => {
       <Route path='/' element={<Home />} />
       <Route path='/create-account' element={<CreateAccount />} />
 
-
       <Route path='/layout' element={
         <ProtectedRoute>
           <Layout />
         </ProtectedRoute>
       }>
-        <Route index element={<Dashboard />} />
+        <Route path='dashboard' element={<Dashboard />} />
         <Route path='entries' element={<Entries />} />
         <Route path='analytics' element={<Analytics />} />
         <Route path='profile' element={<Profile />} />
+        <Route index element={<Navigate to='dashboard' replace/>} />
       </Route>
+
     </Routes>
   )
 }
