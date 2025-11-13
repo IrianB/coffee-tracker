@@ -16,8 +16,6 @@ const editCoffeeModal = ({ coffee, isOpen, onClose, onCoffeeAdded }) => {
         setPrice(coffee?.price || '')
     }, [isOpen])
 
-
-
     const coffeeSubmit = async (e) => {
         e.preventDefault();
 
@@ -36,7 +34,7 @@ const editCoffeeModal = ({ coffee, isOpen, onClose, onCoffeeAdded }) => {
                     price: Number(price),
                 },
             );
-            onCoffeeAdded(); 
+            onCoffeeAdded();
 
             onClose();
 

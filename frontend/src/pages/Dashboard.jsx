@@ -8,53 +8,75 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCoffee, setSelectedCoffee] = useState();
-  const [sorter, setSorter] = useState('default')
+  const [sorter, setSorter] = useState("default");
+  const [selectedBrand, setSelectedBrand] = useState("all");
+
 
   const fetchCoffee = async () => {
     try {
       const response = await API.get("/coffee/get-coffee");
-      setCoffees(response.data);
+      const sorted = sortCoffees(response.data, sorter);
+      setCoffees(sorted);
     } catch (error) {
       console.log(error);
     }
-  };
+  }
 
   const deleteCoffee = async (id) => {
     try {
       await API.delete(`/coffee/delete/${id}`);
-      setCoffees(coffees.filter((coffee) => coffee._id !== id));
+      setCoffees((prev) => prev.filter((coffee) => coffee._id !== id));
     } catch (error) {
       console.log(error);
     }
-  };
+  }
+
+  const sortCoffees = (coffeeList, sortType) => {
+    if (sortType === "lowToHigh") {
+      return [...coffeeList].sort((a, b) => a.price - b.price);
+    } else if (sortType === "highToLow") {
+      return [...coffeeList].sort((a, b) => b.price - a.price);
+    }
+    return coffeeList;
+  }
+
+  const filteredCoffees =
+    selectedBrand === "all"
+      ? coffees
+      : coffees.filter(
+        (coffee) =>
+          coffee.coffeeShopName.toLowerCase() ===
+          selectedBrand.toLowerCase()
+      );
 
   useEffect(() => {
-    if (sorter === "lowToHigh") {
-      setCoffees((prev) => [...prev].sort((a, b) => a.price - b.price));
-    } else if (sorter === "highToLow") {
-      setCoffees((prev) => [...prev].sort((a, b) => b.price - a.price));
-    } else if (sorter === "default") {
-      fetchCoffee()
-    }
-  }, [sorter, isModalOpen, isEditModalOpen]);
+    fetchCoffee();
+  }, []);
+
+  useEffect(() => {
+    setCoffees((prev) => sortCoffees(prev, sorter));
+  }, [sorter]);
+
+  useEffect(() => {
+  }, [selectedBrand]);
 
   return (
     <div className="p-6">
-      {/* Modals */}
       <AddCoffeeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onCoffeeAdded={(newCoffee) => setCoffees([newCoffee, ...coffees])}
+        onCoffeeAdded={(newCoffee) =>
+          setCoffees((prev) => sortCoffees([newCoffee, ...prev], sorter))
+        }
       />
       <EditCoffeeModal
         coffee={selectedCoffee}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onCoffeeAdded={() => sorter}
+        onCoffeeAdded={() => fetchCoffee()}
       />
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h1 className="text-2xl font-semibold text-gray-800">
           ☕ Coffee Dashboard
         </h1>
@@ -71,6 +93,41 @@ const Dashboard = () => {
           <option value="highToLow">💸 Price — High to Low</option>
         </select>
 
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="brand"
+              value="starbucks"
+              checked={selectedBrand === "starbucks"}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+            />
+            Starbucks
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="brand"
+              value="boss coffee"
+              checked={selectedBrand === "boss coffee"}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+            />
+            Boss Coffee
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="brand"
+              value="all"
+              checked={selectedBrand === "all"}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+            />
+            All
+          </label>
+        </div>
+
         <button
           onClick={() => setIsModalOpen(true)}
           className="px-5 py-2 bg-amber-600 text-white font-medium rounded-lg shadow-md hover:bg-amber-700 active:scale-95 transition duration-200 ease-in-out"
@@ -79,7 +136,6 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Scrollable Table Container */}
       <div className="border border-gray-200 rounded-xl overflow-y-auto max-h-[60vh] hide-scrollbar shadow-md bg-white">
         <table className="min-w-full text-sm text-gray-700">
           <thead className="bg-amber-600 text-white uppercase text-xs sticky top-0">
@@ -93,8 +149,8 @@ const Dashboard = () => {
           </thead>
 
           <tbody>
-            {coffees.length > 0 ? (
-              coffees.map((coffee, index) => (
+            {filteredCoffees.length > 0 ? (
+              filteredCoffees.map((coffee, index) => (
                 <tr
                   key={coffee._id}
                   className={`${index % 2 === 0 ? "bg-white" : "bg-amber-50"
